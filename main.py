@@ -1,16 +1,29 @@
-# This is a sample Python script.
+import pygame, sys
+from settings import *
+from level import Level
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+class Game:
+    def __init__(self):
+        # основные настройки
+        pygame.init()
+        pygame.display.set_caption('Zelda')
+        self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
+        self.clock = pygame.time.Clock()
+
+        self.level = Level()
+
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+            self.screen.fill('black')
+            self.level.run()
+            pygame.display.update()
+            self.clock.tick(FPS)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    game = Game()
+    game.run()

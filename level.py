@@ -3,6 +3,9 @@ from settings import *
 from tile import Tile
 from player import Player
 from debug import debug
+from support import *
+from random import choice
+from weapon import Weapon
 
 
 class Level:
@@ -12,7 +15,11 @@ class Level:
         # создание групп видимых и невидимых элементов карты
         self.visible_sprites = YSortCameraGroup()
         self.obstacles_sprites = pygame.sprite.Group()
+        # переменная для уничтожения оружия
+        self.current_attack = None
+
         self.create_map()
+
 
     def create_map(self):
         # старая карта
@@ -24,11 +31,52 @@ class Level:
         #             Tile((x, y), [self.visible_sprites, self.obstacles_sprites])
         #         if col == 'p':
         #             self.player = Player((x, y), [self.visible_sprites], self.obstacles_sprites)
-        self.player = Player((2000, 1440), [self.visible_sprites], self.obstacles_sprites)
+        # print(graphics)
+        layouts = {
+            'boundary': import_csv_layout('Load/5 - level graphics/map/map_FloorBlocks.csv'),
+            'grass': import_csv_layout('Load/5 - level graphics/map/map_Grass.csv'),
+            'object': import_csv_layout('Load/5 - level graphics/map/map_Objects.csv'),
+        }
+
+        graphics = {
+            'grass': import_folder('Load/5 - level graphics/graphics/grass'),
+            'object': import_folder('Load/5 - level graphics/graphics/objects')
+        }
+
+        for style, layout in layouts.items():
+            for row_index, row in enumerate(layout):  # enumerate - счетчик элементов
+                for col_index, col in enumerate(row):
+                    if col != '-1':
+                        x = col_index * TILESIZE  # преобразовали карту мира в положение...
+                        y = row_index * TILESIZE
+                        # отрисовываем разные уровни
+                        if style == 'boundary':
+                            Tile((x, y), [self.obstacles_sprites], 'invisible')
+                        if style == 'grass':
+                            random_grass_image = choice(graphics['grass'])
+                            Tile((x, y), [self.visible_sprites, self.obstacles_sprites], 'grass', random_grass_image)
+                        if style == 'object':
+                            surf = graphics['object'][int(col)]
+                            Tile((x, y), [self.visible_sprites, self.obstacles_sprites], 'object', surf)
+
+        self.player = Player((2000, 1440), [self.visible_sprites], self.obstacles_sprites, self.create_attack,
+                             self.destroy_attack)
+
+    def create_attack(self):
+        self.current_attack = Weapon(self.player, [self.visible_sprites])
+
+    # уничтожение оружия с экрана после атаки
+    def destroy_attack(self):
+        if self.current_attack:
+            self.current_attack.kill()
+
+        self.current_attack = None
+
     def run(self):
         # update and draw the game
         self.visible_sprites.custom_draw(self.player)  # отображение значений на экране
         self.visible_sprites.update()
+        debug(self.player.status)
 
 
 class YSortCameraGroup(pygame.sprite.Group):

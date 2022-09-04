@@ -38,7 +38,7 @@ class Player(pygame.sprite.Sprite):
 
         # статистика / интерфейс
         self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 5}  # начальная статистика
-        self.health = self.stats['health']  # текущая статистика
+        self.health = self.stats['health'] *0.5 # текущая статистика
         self.energy = self.stats['energy']  # текущая статистика
         self.exp = 123  # текущая статистика
         self.speed = self.stats['speed']  # текущая статистика
@@ -97,6 +97,7 @@ class Player(pygame.sprite.Sprite):
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
 
+            # выбор оружия по клавише q
             if keys[pygame.K_q] and self.can_switch_weapon:
                 self.can_switch_weapon = False
                 self.weapon_switch_time = pygame.time.get_ticks()
